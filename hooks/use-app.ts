@@ -42,7 +42,7 @@ export default function useApp() {
     content: INITIAL_MESSAGE,
     citations: [],
   };
-
+  
   const [messages, setMessages] = useState<DisplayMessage[]>([
     initialAssistantMessage,
   ]);
@@ -304,11 +304,32 @@ export default function useApp() {
     setMessages([]);
     setWordCount(0);
   };
+const sendMessage = async (text: string) => {
+  if (!text.trim()) return;
+
+  setIndicatorState([]);
+  setIsLoading(true);
+
+  const userMessage = addUserMessage(text);
+
+  try {
+    const response = await fetchAssistantResponse([
+      ...messages,
+      userMessage,
+    ]);
+    await processStreamedResponse(response);
+  } catch (err) {
+    console.error("SendMessage error:", err);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return {
     messages,
     handleInputChange,
     handleSubmit,
+    sendMessage,
     indicatorState,
     input,
     isLoading,

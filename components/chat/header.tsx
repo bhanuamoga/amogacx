@@ -25,20 +25,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
  * indicating the AI is ALWAYS online.
  */
 export const AILogo = () => (
-  <motion.div
-    whileHover={{ scale: 1.05 }}
-    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-    className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-background/80 shadow-sm"
-  >
-    <Image
-      src="/ai-logo.png"
-      alt={AI_NAME}
-      width={48}
-      height={48}
-      className="h-full w-full object-cover"
-    />
-    <div className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-background" />
-  </motion.div>
+ <motion.span
+  whileHover={{ scale: 1.1 }}
+  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+  className="text-3xl"
+>
+  🤖
+</motion.span>
+
 );
 
 /**
@@ -59,10 +53,11 @@ export default function ChatHeader({
         {/* logo & title: center on mobile, left on desktop */}
         <div className="flex items-center gap-3">
           <AILogo />
+          
           <div className="text-center sm:text-left">
             <p className="text-lg font-semibold leading-tight">{CHAT_HEADER}</p>
             <p className="text-xs text-muted-foreground">
-              Always ready to help with ideas and answers.
+              More Orders.. More Profits Your own growth AI.
             </p>
           </div>
         </div>

@@ -12,7 +12,7 @@ import { AI_NAME, OWNER_NAME } from "@/configuration/identity";
  * @date 2025-05-11
  */
 
-export const CHAT_HEADER: string = `Amoga CX - Chat with ${AI_NAME}`;
+export const CHAT_HEADER: string = `${OWNER_NAME}`;
 export const MESSAGE_PLACEHOLDER: string = `[MESSAGE PLACEHOLDER]`;
 export const FOOTER_MESSAGE: string = `[FOOTER MESSAGE]`; // not applicable
 export const CLEAR_BUTTON_TEXT: string = `Clear Conversation`;

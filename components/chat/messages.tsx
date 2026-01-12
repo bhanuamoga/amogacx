@@ -14,36 +14,36 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-
+import { Copy, ThumbsUp, ThumbsDown } from "lucide-react";
 import { DisplayMessage } from "@/types";
 import { Formatting } from "./formatting";
 import Loading from "./loading";
 import { LoadingIndicator } from "@/types";
 import { AI_NAME } from "@/configuration/identity";
-
+import { Bot } from 'lucide-react';
 const EMPTY_STATE_CARDS: Array<{
   title: string;
   description: string;
   icon: LucideIcon;
 }> = [
   {
-    title: "Draft and refine",
-    description: "Write a crisp email, plan, or summary in seconds.",
+    title: "Ask anything",
+    description: "Get your growth questions answered.",
     icon: PenLine,
   },
   {
     title: "Research faster",
-    description: "Ask for comparisons, tradeoffs, or quick explainers.",
+    description: "How can i Help you ?",
     icon: Search,
   },
   {
-    title: "Brainstorm ideas",
-    description: "Generate names, taglines, or creative angles.",
+    title: "Analytic AI",
+    description: "Ask and get instant insights and action items.",
     icon: Wand2,
   },
   {
-    title: "Ask anything",
-    description: "Get clear answers with structure and context.",
+    title: "AI Coach",
+    description: "Get you custom AI coach program.",
     icon: MessageSquareText,
   },
 ];
@@ -113,19 +113,20 @@ function CopyButton({
  */
 function AILogo() {
   return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300, damping: 15 }}
-      className="relative h-9 w-9 overflow-hidden rounded-full border border-border/60 bg-background/80 shadow-sm"
-    >
-      <Image
-        src="/ai-logo.png"
-        alt={AI_NAME}
-        width={36}
-        height={36}
-        className="h-full w-full object-cover"
-      />
-    </motion.div>
+  <motion.div
+  whileHover={{ scale: 1.05 }}
+  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+  className="relative flex h-9 w-9 items-center justify-center
+             overflow-hidden rounded-full
+             border border-border/60
+             bg-background/80
+             shadow-sm"
+>
+  <Bot
+    className="h-5 w-5 text-primary"
+    strokeWidth={1.8}
+  />
+</motion.div>
   );
 }
 
@@ -149,7 +150,7 @@ function EmptyMessages() {
               <Sparkles className="h-6 w-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-xl font-semibold">Welcome to {AI_NAME}</p>
+              <p className="text-xl font-semibold">Welcome  Grow store community, Achieve AI Use success.</p>
               <p className="text-sm text-muted-foreground">
                 Share a goal, paste content, or ask for a plan. I will guide you
                 from start to finish.
@@ -179,10 +180,7 @@ function EmptyMessages() {
               );
             })}
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <MessageCircle className="h-4 w-4" />
-            <span>Tip: Ask for comparisons, plans, or quick drafts.</span>
-          </div>
+         
         </div>
       </div>
     </motion.div>
@@ -194,6 +192,8 @@ function EmptyMessages() {
  *
  * @param message - The message object containing the content and role
  */
+import { User } from "lucide-react";
+
 function UserMessage({ message }: { message: DisplayMessage }) {
   return (
     <motion.div
@@ -202,17 +202,32 @@ function UserMessage({ message }: { message: DisplayMessage }) {
       transition={{ duration: 0.3 }}
       className="group flex items-end justify-end gap-2 py-2"
     >
+      {/* User icon (LEFT of text) */}
+      <div
+        className="flex h-8 w-8 items-center justify-center
+                   rounded-full
+                   border border-border/60
+                   bg-background/80
+                   shadow-sm"
+      >
+        <User className="h-4 w-4 text-muted-foreground" />
+      </div>
+
+      {/* User text */}
       <motion.div
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="max-w-[75%] break-words rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/95 to-primary text-primary-foreground px-4 py-2.5 text-sm leading-relaxed shadow-md transition-shadow duration-300 hover:shadow-lg sm:text-base"
+        className="px-1 py-1
+                   text-sm sm:text-base
+                   text-foreground
+                   whitespace-pre-wrap"
       >
         <span className="whitespace-pre-wrap">{message.content}</span>
       </motion.div>
-      {/* Copy button removed for user messages */}
     </motion.div>
   );
 }
+
 
 /**
  * AssistantMessage component that displays the assistant's message.
@@ -220,32 +235,71 @@ function UserMessage({ message }: { message: DisplayMessage }) {
  * @param message - The message object containing the content and role
  */
 function AssistantMessage({ message }: { message: DisplayMessage }) {
+  const isShort = message.content.length < 120; // 👈 threshold
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="group flex items-start justify-start gap-3 py-2"
+      transition={{ duration: 0.2 }}
+      className="flex flex-col gap-1 py-2"
     >
-      <div className="mt-1 w-9 flex items-end">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-1">
         <AILogo />
+        <span className="text-xs text-muted-foreground">Assistant</span>
       </div>
-      <div className="relative w-full max-w-[75%]">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="break-words rounded-3xl border bg-card/80 px-4 py-3 text-sm leading-relaxed shadow-sm backdrop-blur transition-shadow duration-300 hover:shadow-md sm:text-base"
+
+      {/* Message */}
+      <div
+        className={
+          isShort
+            ? // 🔹 SHORT MESSAGE (no ugly bubble)
+              "px-3 text-sm sm:text-base leading-relaxed text-foreground"
+            : // 🔸 LONG MESSAGE (soft bubble)
+              "rounded-2xl bg-muted/60 px-4 py-3 text-sm sm:text-base leading-relaxed"
+        }
+      >
+        <div
+          className="
+            prose prose-sm sm:prose-base
+            dark:prose-invert
+            max-w-none
+            prose-pre:bg-background
+            prose-pre:rounded-lg
+            prose-pre:p-3
+            prose-pre:overflow-x-auto
+          "
         >
           <Formatting message={message} />
-        </motion.div>
-        <CopyButton
-          text={message.content}
-          className="absolute right-3 top-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-        />
+        </div>
+      </div>
+
+      {/* Action icons BELOW message (clean & modern) */}
+      <div className="flex items-center gap-3 px-3 pt-3 text-muted-foreground">
+        <button
+          onClick={() => navigator.clipboard.writeText(message.content)}
+          className="hover:text-foreground transition"
+          aria-label="Copy"
+        >
+          <Copy className="h-4 w-4" />
+        </button>
+
+        <button className="hover:text-foreground transition" aria-label="Like">
+          <ThumbsUp className="h-4 w-4" />
+        </button>
+
+        <button
+          className="hover:text-foreground transition"
+          aria-label="Dislike"
+        >
+          <ThumbsDown className="h-4 w-4" />
+        </button>
       </div>
     </motion.div>
   );
 }
+
 
 /**
  * ChatMessages component that displays the chat messages.
