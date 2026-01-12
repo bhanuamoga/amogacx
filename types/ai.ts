@@ -25,6 +25,7 @@ export const intentionTypeSchema = z.enum([
   "hostile_message",
   "random",
   "question",
+  "structured_question"
 ]);
 export type IntentionType = z.infer<typeof intentionTypeSchema>;
 

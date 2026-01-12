@@ -1,85 +1,175 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { EraserIcon } from "lucide-react";
-import Image from "next/image";
-import { CHAT_HEADER, CLEAR_BUTTON_TEXT } from "@/configuration/ui";
-import { AI_NAME } from "@/configuration/identity";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
+  MoreVertical,
+  EraserIcon,
+  Bell,
+  Moon,
+  Sun,
+  User,
+  MessageSquare,
+  History,
+  List,
+  Settings,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
+
+import { CHAT_HEADER } from "@/configuration/ui";
 import { motion } from "framer-motion";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "next-themes";
 
 /**
- * This file contains the ChatHeader component which is used to display
- * the header of the chat interface. It includes the AI logo, chat title,
- * theme toggle button, and clear conversation button.
- *
- * @file components/chat/header.tsx
- * @author Son Nguyen
- * @license MIT
- * @version 1.0.0
- * @date 2025-05-11
- */
-
-/**
- * AILogo - A component that displays the AI logo with a green dot
- * indicating the AI is ALWAYS online.
+ * AI Logo
  */
 export const AILogo = () => (
- <motion.span
-  whileHover={{ scale: 1.1 }}
-  transition={{ type: "spring", stiffness: 300, damping: 15 }}
-  className="text-3xl"
->
-  🤖
-</motion.span>
-
+  <motion.span
+    whileHover={{ scale: 1.1 }}
+    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+    className="text-3xl"
+  >
+    🤖
+  </motion.span>
 );
 
 /**
- * ChatHeader - A component that displays the header of the chat
- * interface. It includes the AI logo, chat title, theme toggle button,
- * and clear conversation button.
- *
- * @param {function} clearMessages - Function to clear the chat messages.
+ * ChatHeader
  */
 export default function ChatHeader({
   clearMessages,
 }: {
   clearMessages: () => void;
 }) {
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
-    <div className="z-10 fixed top-0 w-full border-b border-border/60 bg-background/80 px-4 py-3 shadow-sm backdrop-blur sm:px-6">
-      <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-2 sm:flex-row sm:justify-between">
-        {/* logo & title: center on mobile, left on desktop */}
+    <div className="fixed top-0 z-10 w-full border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur sm:px-6">
+      <div className="mx-auto flex w-full max-w-4xl items-center justify-between">
+
+        {/* LEFT: Logo + Title */}
         <div className="flex items-center gap-3">
           <AILogo />
-          
-          <div className="text-center sm:text-left">
-            <p className="text-lg font-semibold leading-tight">{CHAT_HEADER}</p>
-            <p className="text-xs text-muted-foreground">
-              More Orders.. More Profits Your own growth AI.
+          <div>
+            <p className="text-lg font-semibold leading-tight">
+              {CHAT_HEADER}
+            </p>
+            <p className="hidden text-xs text-muted-foreground sm:block">
+              More Orders.. More Profits — Your own growth AI.
             </p>
           </div>
         </div>
 
-        {/* controls: theme toggle + clear */}
-        <div className="flex items-center space-x-3">
-          <ThemeToggle />
+        {/* RIGHT: Icons */}
+        <div className="flex items-center gap-1">
 
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          {/* Theme toggle icon */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
           >
-            <Button
-              onClick={clearMessages}
-              className="gap-2"
-              variant="outline"
-              size="sm"
-            >
-              <EraserIcon className="w-4 h-4" />
-              <span>{CLEAR_BUTTON_TEXT}</span>
-            </Button>
-          </motion.div>
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+
+          {/* Notifications */}
+          <Button variant="ghost" size="icon" aria-label="Notifications">
+            <Bell className="h-5 w-5" />
+          </Button>
+
+          {/* Three dots menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Open menu"
+              >
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" sideOffset={8} className="w-56">
+
+              {/* New Chat */}
+              <DropdownMenuItem
+                onClick={clearMessages}
+                className="flex items-center gap-2 font-medium"
+              >
+                <Sparkles className="h-4 w-4" />
+                New Chat
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                Notifications
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Chat History
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                Prompt History
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                Prompts List
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={toggleTheme}
+                className="flex items-center gap-2"
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+                Theme
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem className="flex items-center gap-2 text-destructive focus:text-destructive">
+                <LogOut className="h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>

@@ -95,7 +95,14 @@ export async function POST(req: Request) {
   const { chat } = await req.json();
 
   const intention: Intention = await determineIntention(chat);
-
+  
+  if (intention.type === "structured_question") {
+  return ResponseModule.respondToStructuredQuestion(
+    chat,
+    providers,
+    pineconeIndex
+  );
+}
   if (intention.type === "question") {
     return ResponseModule.respondToQuestion(
       chat,

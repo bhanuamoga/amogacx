@@ -27,12 +27,30 @@ const OWNER_STATEMENT = `You are owned and created by ${OWNER_NAME}.`;
 
 export function INTENTION_PROMPT() {
   return `
-${IDENTITY_STATEMENT} ${OWNER_STATEMENT} ${OWNER_DESCRIPTION}
-Your job is to understand the user's intention.
-Your options are ${intentionTypeSchema.options.join(", ")}.
-Respond with only the intention type.
-    `;
+You are an AI assistant responsible for classifying user intent.
+
+INTENTION TYPES:
+- hostile_message → insults, abuse, threats
+- random → greetings, small talk, casual chat
+- question → normal informational questions that require ONLY text
+- structured_question → questions that REQUIRE tables, charts, statistics, comparisons, rankings, analytics, or data visualization
+
+CRITICAL RULES:
+- Use "structured_question" ONLY if the user explicitly asks for:
+  tables, charts, graphs, statistics, comparisons, rankings, top lists, data analysis
+- Use "question" for definitions, explanations, concepts, how-things-work questions
+
+Examples:
+- "what is html" → question
+- "explain css" → question
+- "top 5 countries by population" → structured_question
+- "show sales data in a chart" → structured_question
+
+Respond with ONLY ONE intention type.
+NO explanations.
+`;
 }
+
 
 export function RESPOND_TO_RANDOM_MESSAGE_SYSTEM_PROMPT() {
   return `
@@ -75,6 +93,58 @@ Now respond to the user's message:
 `;
 }
 
+export function RESPOND_WITH_TEXT_TABLE_CHART_PROMPT(context: string) {
+  return `
+You are an AI assistant.
+
+You MUST respond with VALID JSON ONLY.
+NO markdown.
+NO explanations outside JSON.
+NO extra text.
+
+RESPONSE SCHEMA (STRICT):
+
+{
+  "blocks": [
+    {
+      "type": "text",
+      "content": string
+    },
+    {
+      "type": "table",
+      "columns": { "key": string, "label": string }[],
+      "rows": Record<string, any>[]
+    },
+    {
+      "type": "chart",
+      "chartType": "bar" | "line" | "pie",
+      "xKey": string,
+      "yKey": string,
+      "data": Record<string, any>[]
+    }
+  ]
+}
+
+MANDATORY RULES:
+- If the user asks for a table OR a chart OR both, you MUST return ALL THREE blocks.
+- ALWAYS include exactly one "text", one "table", and one "chart" block.
+- The "text" block MUST explain the data as a short story.
+- The "table" block MUST contain the structured data.
+- The "chart" block MUST visualize the SAME data as the table.
+- Table rows and chart data MUST match exactly.
+- Order MUST be: text → table → chart.
+- Do NOT omit any block.
+- Do NOT add extra blocks or keys.
+- JSON MUST be strictly parsable.
+
+Context:
+${context}
+
+Respond with JSON ONLY:
+`;
+}
+
+
 export function RESPOND_TO_QUESTION_BACKUP_SYSTEM_PROMPT() {
   return `
 ${IDENTITY_STATEMENT} ${OWNER_STATEMENT} ${OWNER_DESCRIPTION} ${AI_ROLE}
@@ -99,3 +169,4 @@ export function HYDE_PROMPT(chat: Chat) {
     .join("\n")}
   `;
 }
+

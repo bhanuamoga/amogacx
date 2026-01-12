@@ -32,6 +32,7 @@ import {
   RESPOND_TO_QUESTION_BACKUP_SYSTEM_PROMPT,
   RESPOND_TO_QUESTION_SYSTEM_PROMPT,
   RESPOND_TO_RANDOM_MESSAGE_SYSTEM_PROMPT,
+  RESPOND_WITH_TEXT_TABLE_CHART_PROMPT,
 } from "@/configuration/prompts";
 import {
   RANDOM_RESPONSE_PROVIDER,
@@ -242,4 +243,87 @@ export class ResponseModule {
       },
     });
   }
+
+  static async respondToStructuredQuestion(
+  chat: Chat,
+  providers: AIProviders,
+  index: any,
+): Promise<Response> {
+  const PROVIDER_NAME: ProviderName = QUESTION_RESPONSE_PROVIDER;
+  const MODEL_NAME: string = QUESTION_RESPONSE_MODEL;
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      queueIndicator({
+        controller,
+        status: "Preparing structured response",
+        icon: "thinking",
+      });
+
+      try {
+        const hypotheticalData = await generateHypotheticalData(
+          chat,
+          providers.openai,
+        );
+
+        const { embedding } = await embedHypotheticalData(
+          hypotheticalData,
+          providers.openai,
+        );
+
+        queueIndicator({
+          controller,
+          status: "Reading through documents",
+          icon: "searching",
+        });
+
+        const chunks = await searchForChunksUsingEmbedding(
+          embedding,
+          index,
+        );
+
+        const sources = await getSourcesFromChunks(chunks);
+        const citations = await getCitationsFromChunks(chunks);
+        const contextFromSources = await getContextFromSources(sources);
+
+        const systemPrompt =
+          RESPOND_WITH_TEXT_TABLE_CHART_PROMPT(contextFromSources);
+
+        queueIndicator({
+          controller,
+          status: "Generating structured output",
+          icon: "thinking",
+        });
+
+        queueAssistantResponse({
+          controller,
+          providers,
+          providerName: PROVIDER_NAME,
+          messages: stripMessagesOfCitations(
+            chat.messages.slice(-HISTORY_CONTEXT_LENGTH),
+          ),
+          model_name: MODEL_NAME,
+          systemPrompt,
+          citations,
+          error_message: DEFAULT_RESPONSE_MESSAGE,
+          temperature: QUESTION_RESPONSE_TEMPERATURE,
+        });
+      } catch (error: any) {
+        queueError({
+          controller,
+          error_message: error.message ?? DEFAULT_RESPONSE_MESSAGE,
+        });
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
+}
+
 }

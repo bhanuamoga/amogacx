@@ -21,6 +21,9 @@ import Loading from "./loading";
 import { LoadingIndicator } from "@/types";
 import { AI_NAME } from "@/configuration/identity";
 import { Bot } from 'lucide-react';
+import { TableBlock } from "@/components/ui/TableBlock";
+import { ChartBlock } from "@/components/ui/ChartBlock";
+
 const EMPTY_STATE_CARDS: Array<{
   title: string;
   description: string;
@@ -271,7 +274,59 @@ function AssistantMessage({ message }: { message: DisplayMessage }) {
             prose-pre:overflow-x-auto
           "
         >
-          <Formatting message={message} />
+          {(() => {
+  try {
+    const parsed = JSON.parse(message.content);
+
+    if (parsed && Array.isArray(parsed.blocks)) {
+      return (
+        <div className="flex flex-col gap-4">
+          {parsed.blocks.map((block: any, i: number) => {
+            if (block.type === "text") {
+              return (
+                <p
+                  key={i}
+                  className="text-sm sm:text-base leading-relaxed"
+                >
+                  {block.content}
+                </p>
+              );
+            }
+
+            if (block.type === "table") {
+              return (
+                <TableBlock
+                  key={i}
+                  columns={block.columns}
+                  rows={block.rows}
+                />
+              );
+            }
+
+            if (block.type === "chart") {
+              return (
+                <ChartBlock
+                  key={i}
+                  chartType={block.chartType}
+                  data={block.data}
+                  xKey={block.xKey}
+                  yKey={block.yKey}
+                />
+              );
+            }
+
+            return null;
+          })}
+        </div>
+      );
+    }
+
+    return <Formatting message={message} />;
+  } catch {
+    return <Formatting message={message} />;
+  }
+})()}
+
         </div>
       </div>
 
@@ -331,7 +386,12 @@ export default function ChatMessages({
       {messages.length === 0 ? (
         <EmptyMessages />
       ) : (
-        messages.map((m, i) => (
+        messages
+  .filter(
+    (m) =>
+      m.role !== "assistant" ||
+      (m.content && m.content.trim().length > 0)
+  ).map((m, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}

@@ -10,7 +10,7 @@
  * @date 2025-05-11
  */
 
-export const OWNER_NAME: string = `growstor.chat`;
+export const OWNER_NAME: string = `kidly.market`;
 export const OWNER_DESCRIPTION: string = `[OWNER DESCRIPTION]`;
 
 export const AI_NAME: string = `Qwen`;
