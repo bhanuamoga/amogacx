@@ -1,0 +1,24 @@
+{
+  "name": "Customizable AI Chatbot DevContainer",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  "runArgs": ["--env-file", ".env"],
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "editor.formatOnSave": true
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint", // ESLint
+    "esbenp.prettier-vscode", // Prettier for code formatting
+    "ms-azuretools.vscode-docker", // Docker extension
+    "ms-vscode.vscode-typescript-tslint-plugin", // TypeScript support
+    "redhat.vscode-yaml", // YAML syntax support
+    "editorconfig.editorconfig" // EditorConfig support
+  ],
+  "mounts": [
+    "source=${localWorkspaceFolder}/.env,target=/workspace/.env,type=bind"
+  ],
+  "postCreateCommand": "npm install",
+  "remoteUser": "node",
+  "workspaceFolder": "/workspace"
+}
